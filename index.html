@@ -9,34 +9,33 @@
             text-align: center; font-family: 'PingFang SC', sans-serif; 
             background-color: #ffeef2; margin: 0; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
-            justify-content: flex-start; padding-top: 12vh; height: 100vh;
+            justify-content: flex-start; padding-top: 10vh; height: 100vh;
         }
         .container { width: 90%; max-width: 400px; z-index: 10; }
         img { 
             width: 250px; border-radius: 20px; margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(214, 51, 132, 0.2);
         }
-        h1 { color: #d63384; font-size: 1.6rem; min-height: 3.2rem; margin: 15px 0; transition: all 0.3s; }
+        h1 { color: #d63384; font-size: 1.5rem; min-height: 4.5rem; margin: 10px 0; }
         .buttons { 
             display: flex; justify-content: center; align-items: center; 
-            gap: 15px; margin-top: 20px; position: relative;
+            gap: 15px; margin-top: 20px;
         }
         button { 
             border: none; border-radius: 15px; cursor: pointer; 
-            font-weight: bold; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            font-weight: bold; transition: all 0.2s ease;
         }
-        #yesBtn { background-color: #4caf50; color: white; padding: 15px 30px; font-size: 1.2rem; z-index: 100; }
-        #noBtn { background-color: #f44336; color: white; padding: 15px 30px; font-size: 1.2rem; }
-        
-        /* 爱心飘落动画 */
+        #yesBtn { background-color: #4caf50; color: white; padding: 15px 30px; font-size: 1.2rem; }
+        #noBtn { 
+            background-color: #f44336; color: white; padding: 15px 30px; 
+            font-size: 1.2rem; position: relative; /* 初始相对定位 */
+        }
         .heart {
             position: fixed; top: -1vh; font-size: 2rem;
             user-select: none; pointer-events: none; z-index: 5;
             animation: fall linear forwards;
         }
-        @keyframes fall {
-            to { transform: translateY(105vh) rotate(360deg); }
-        }
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -47,60 +46,74 @@
     
     <div class="buttons" id="btn-group">
         <button id="yesBtn" onclick="celebrate()">Yes</button>
-        <button id="noBtn" onclick="shrinkNo()">No</button>
+        <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">No</button>
     </div>
 </div>
 
 <script>
     let clickCount = 0;
     const messages = [
-        "Are you sure?", 
-        "Really??", 
-        "Think again!", 
-        "Pwease...", 
-        "I'll be very sad...", 
-        "I'm gonna cry...", 
-        "You're breaking my heart! 😭"
+        "哎呀，点不到吧？",
+        "再试一次？",
+        "真的要点 No 吗？",
+        "好难过...点不到我吧！",
+        "最后一次机会咯~",
+        "好吧，不逗你了...",
+        "真的确定吗？",
+        "你会后悔的！",
+        "我会哭得很大声！",
+        "答应我吧..."
     ];
 
-    function shrinkNo() {
-        const yesBtn = document.getElementById('yesBtn');
+    function moveButton() {
         const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
         const question = document.getElementById('question');
 
-        // 1. 更新文案
-        question.innerText = messages[Math.min(clickCount, messages.length - 1)];
-        clickCount++;
-
-        // 2. Yes 按钮变大 (指数级增长)
-        const newSize = 1.2 + (clickCount * 0.8);
-        yesBtn.style.transform = `scale(${newSize})`;
-        
-        // 3. No 按钮缩小并向右偏移
-        const noScale = Math.max(0.1, 1 - clickCount * 0.15);
-        const noOffset = clickCount * 20;
-        noBtn.style.transform = `scale(${noScale}) translateX(${noOffset}px)`;
-
-        // 4. 当 No 变得太小时消失
-        if (clickCount > 6) {
-            noBtn.style.display = 'none';
+        // 前 5 次点击/悬停：按钮闪躲
+        if (clickCount < 5) {
+            // 设置绝对定位以便移动
+            noBtn.style.position = 'fixed';
+            
+            // 计算随机位置（避开屏幕边缘）
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+            
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+            
+            question.innerText = messages[clickCount];
+        } 
+        // 5 次以后：按钮不跑了，开始大小变化
+        else {
+            // 回到原来的位置布局逻辑
+            noBtn.style.position = 'static';
+            noBtn.style.left = 'auto';
+            noBtn.style.top = 'auto';
+            
+            question.innerText = messages[Math.min(clickCount, messages.length - 1)];
+            
+            // Yes 变大
+            const yesScale = 1 + (clickCount - 4) * 0.6;
+            yesBtn.style.transform = `scale(${yesScale})`;
+            
+            // No 缩小
+            const noScale = Math.max(0.1, 1 - (clickCount - 4) * 0.2);
+            noBtn.style.transform = `scale(${noScale})`;
+            
+            if (clickCount > 10) noBtn.style.display = 'none';
         }
+        
+        clickCount++;
     }
 
     function celebrate() {
-        // 更换内容
         document.getElementById('main-content').innerHTML = `
             <img src="Happy So Excited GIF.gif" alt="Happy">
             <h1>YAYY!!! I LOVE YOU! ❤️❤️❤️</h1>
         `;
 
-        // 生成爱心喷泉效果
-        const duration = 3000; // 持续3秒
-        const end = Date.now() + duration;
-
         const interval = setInterval(() => {
-            if (Date.now() > end) return clearInterval(interval);
-            
             const heart = document.createElement('div');
             heart.classList.add('heart');
             heart.innerHTML = ['❤️','💖','💗','💘','💝'][Math.floor(Math.random()*5)];
@@ -109,8 +122,6 @@
             heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
             heart.style.opacity = Math.random();
             document.body.appendChild(heart);
-            
-            // 6秒后移除爱心，防止页面卡顿
             setTimeout(() => heart.remove(), 6000);
         }, 100);
     }
