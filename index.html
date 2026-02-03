@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? ❤️</title>
+    <style>
+        body { 
+            text-align: center; font-family: 'PingFang SC', sans-serif; 
+            background-color: #ffeef2; margin: 0; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: flex-start; padding-top: 12vh; height: 100vh;
+        }
+        .container { width: 90%; max-width: 400px; z-index: 10; }
+        img { 
+            width: 250px; border-radius: 20px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(214, 51, 132, 0.2);
+        }
+        h1 { color: #d63384; font-size: 1.6rem; min-height: 3.2rem; margin: 15px 0; transition: all 0.3s; }
+        .buttons { 
+            display: flex; justify-content: center; align-items: center; 
+            gap: 15px; margin-top: 20px; position: relative;
+        }
+        button { 
+            border: none; border-radius: 15px; cursor: pointer; 
+            font-weight: bold; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        #yesBtn { background-color: #4caf50; color: white; padding: 15px 30px; font-size: 1.2rem; z-index: 100; }
+        #noBtn { background-color: #f44336; color: white; padding: 15px 30px; font-size: 1.2rem; }
+        
+        /* 爱心飘落动画 */
+        .heart {
+            position: fixed; top: -1vh; font-size: 2rem;
+            user-select: none; pointer-events: none; z-index: 5;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(105vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-content">
+    <img id="header-img" src="Valentines Day Love GIF.gif" alt="Romantic GIF">
+    <h1 id="question">Will you be my valentine?</h1>
+    
+    <div class="buttons" id="btn-group">
+        <button id="yesBtn" onclick="celebrate()">Yes</button>
+        <button id="noBtn" onclick="shrinkNo()">No</button>
+    </div>
+</div>
+
+<script>
+    let clickCount = 0;
+    const messages = [
+        "Are you sure?", 
+        "Really??", 
+        "Think again!", 
+        "Pwease...", 
+        "I'll be very sad...", 
+        "I'm gonna cry...", 
+        "You're breaking my heart! 😭"
+    ];
+
+    function shrinkNo() {
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const question = document.getElementById('question');
+
+        // 1. 更新文案
+        question.innerText = messages[Math.min(clickCount, messages.length - 1)];
+        clickCount++;
+
+        // 2. Yes 按钮变大 (指数级增长)
+        const newSize = 1.2 + (clickCount * 0.8);
+        yesBtn.style.transform = `scale(${newSize})`;
+        
+        // 3. No 按钮缩小并向右偏移
+        const noScale = Math.max(0.1, 1 - clickCount * 0.15);
+        const noOffset = clickCount * 20;
+        noBtn.style.transform = `scale(${noScale}) translateX(${noOffset}px)`;
+
+        // 4. 当 No 变得太小时消失
+        if (clickCount > 6) {
+            noBtn.style.display = 'none';
+        }
+    }
+
+    function celebrate() {
+        // 更换内容
+        document.getElementById('main-content').innerHTML = `
+            <img src="Happy So Excited GIF.gif" alt="Happy">
+            <h1>YAYY!!! I LOVE YOU! ❤️❤️❤️</h1>
+        `;
+
+        // 生成爱心喷泉效果
+        const duration = 3000; // 持续3秒
+        const end = Date.now() + duration;
+
+        const interval = setInterval(() => {
+            if (Date.now() > end) return clearInterval(interval);
+            
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = ['❤️','💖','💗','💘','💝'][Math.floor(Math.random()*5)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            heart.style.opacity = Math.random();
+            document.body.appendChild(heart);
+            
+            // 6秒后移除爱心，防止页面卡顿
+            setTimeout(() => heart.remove(), 6000);
+        }, 100);
+    }
+</script>
+
+</body>
+</html>
